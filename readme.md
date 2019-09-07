@@ -12,8 +12,10 @@ new \WPTRT\Dashboard\Notice( (string) $id, (string) $content, (array) $args );
 ### Arguments
 
 * `$id` - Required - `(string)` - A unique ID for this notice. The ID can contain lowercase latin letters and underscores. It is used to construct the option (or user-meta) key that will be strored in the database.
-* `$content` - Required - (string) - The content for this notice. Note: Please make sure that your text is properly wrapped in `<p>` tags.
-* `$args` - Optional - (array) - Extra arguments for this notice. Can be used to alter the notice's default behavior.
+* `$content` - Required - `(string)` - The content for this notice. Note: Please make sure that your text is properly wrapped in `<p>` tags.
+* `$args` - Optional - `(array)` - Extra arguments for this notice. Can be used to alter the notice's default behavior.
+
+---------
 
 The `$args` argument can have the following values:
 * `dismissible` - `(bool)` - Whether this notice should be dismissible or not. Defaults to `true`.
