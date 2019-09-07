@@ -1,0 +1,26 @@
+{
+	"name"        : "wptrt/admin-notices",
+	"description" : "A class to create admin-notices for the WordPress dashboard.",
+	"keywords"    : [ "wordpress" ],
+	"homepage"    : "https://github.com/WPTRT/admin-notices",
+	"license"     : "GPL-2.0-or-later",
+	"authors"     : [
+		{
+			"name"     : "WordPress.org Theme Review Team",
+			"email"    : "themes@wordpress.org",
+			"homepage" : "https://make.wordpress.org/themes",
+			"role"     : "Developer"
+		}
+	],
+	"support"     : {
+		"issues" : "https://github.com/WPTRT/admin-notices/issues"
+	},
+	"autoload"    : {
+		"psr-4" : {
+			"WPTRT\\Dashboard\\" : "src/"
+		}
+	},
+	"require"     : {
+		"php" : ">=5.6"
+	}
+}
