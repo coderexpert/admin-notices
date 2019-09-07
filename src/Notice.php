@@ -1,9 +1,10 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName
 /**
  * Admin-Notices class.
  *
  * Creates an admin notice with consistent styling.
  *
+ * @package   WPTRT/admin-notices
  * @author    WPTRT <themes@wordpress.org>
  * @copyright 2019 WPTRT
  * @license   https://www.gnu.org/licenses/gpl-2.0.html GPL-2.0-or-later
@@ -87,7 +88,7 @@ class Notice {
 	 *                                                            Defaults to "edit_theme_options".
 	 *                            'option_key_prefix' => (string) The prefix that will be used to build the option (or post-meta) name.
 	 *                                                            Can contain lowercase latin letters and underscores.
-	 *                        ]
+	 *                        ].
 	 */
 	public function __construct( $id, $content, $args = [] ) {
 
@@ -179,7 +180,7 @@ class Notice {
 
 				// Build the data to send in our request.
 				// Data has to be formatted as a string here.
-				postData += 'id=<?php echo esc_attr( urlencode( $this->id ) ); ?>';
+				postData += 'id=<?php echo esc_attr( rawurlencode( $this->id ) ); ?>';
 				postData += '&action=wptrt_dismiss_notice';
 				postData += '&nonce=<?php echo esc_html( $nonce ); ?>';
 
@@ -219,7 +220,7 @@ class Notice {
 	 *
 	 * @access private
 	 * @since 1.0
-	 * @return void
+	 * @return bool
 	 */
 	private function is_screen() {
 
