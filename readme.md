@@ -21,7 +21,7 @@ The `$args` argument can have the following values:
 * `dismissible` - `(bool)` - Whether this notice should be dismissible or not. Defaults to `true`.
 * `screens` - `(array)` - An array of screens where the notice will be displayed. Leave empty to always show. Defaults to an empty array.
 * `scope` - `(string)` Can be "global" or "user". Determines if the dismissed status will be saved as an option or user-meta. Defaults to `global`.
-* `style` - `(string)` - Can be one of "info", "success", "warning", "error". Defaults to "info".
+* `type` - `(string)` - Can be one of "info", "success", "warning", "error". Defaults to "info".
 * `capability` - `(string)` - The user capability required to see the notice. Defaults to `edit_theme_options`.
 * `option_key_prefix` - `(string)` - The prefix that will be used to build the option (or post-meta) name. Can contain lowercase latin letters and underscores. The actual option is built by combining the `option_key_prefix` argument with the defined ID from the 1st argument of the class. Defaults to `wptrt_notice_dismissed`.
 
@@ -49,7 +49,7 @@ $notice_content = '<p>' . esc_html__( 'This is the content for my new notice', '
 $notice_args    = [
 	'screens'           => [ 'themes' ],       // Only show notice in the "themes" screen.
 	'scope'             => 'user',             // Dismiss is per-user instead of global.
-	'style'             => 'warning',          // Changes the color to orange.
+	'type'              => 'warning',          // Changes the color to orange.
 	'option_key_prefix' => 'notice_dismissed', // Changes the prefix for the user-meta we'll save.
 ];
 new Notice( $notice_id, $notice_content, $notice_args );

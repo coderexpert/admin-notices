@@ -59,7 +59,7 @@ class Notice {
 	private $args = [
 		'dismissible'       => true,
 		'scope'             => 'global',
-		'style'             => 'info',
+		'type'              => 'info',
 		'capability'        => 'edit_theme_options',
 		'option_key_prefix' => 'wptrt_notice_dismissed',
 		'screens'           => [],
@@ -82,7 +82,7 @@ class Notice {
 	 *                            'scope'             => (string) Can be "global" or "user".
 	 *                                                            Determines if the dismissed status will be saved as an option or user-meta.
 	 *                                                            Defaults to "global".
-	 *                            'style'             => (string) Can be one of "info", "success", "warning", "error".
+	 *                            'type'              => (string) Can be one of "info", "success", "warning", "error".
 	 *                                                            Defaults to "info".
 	 *                            'capability'        => (string) The user capability required to see the notice.
 	 *                                                            Defaults to "edit_theme_options".
@@ -129,7 +129,7 @@ class Notice {
 			return;
 		}
 
-		$classes = 'notice notice-' . $this->args['style'];
+		$classes = 'notice notice-' . $this->args['type'];
 		// Add is-dismissible class.
 		$classes .= ( $this->args['dismissible'] ) ? ' is-dismissible' : '';
 		?>
