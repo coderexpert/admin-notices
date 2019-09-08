@@ -34,7 +34,7 @@ The `$options` argument is an array that can have the following optional items:
 | `alt_style` | `bool` | Set to true if you want to use alternative styles. These have a background-color depending on the `type` argument - in contrast to the normal styles that use a white background. | `false` |
 | `capability` | `string` | The user capability required to see the notice. For a list of all available capabilities please refer to the [Roles and Capabilities](https://wordpress.org/support/article/roles-and-capabilities/) article. | `edit_theme_options`
 | `screens` | `array` | An array of screens where the notice will be displayed. For a reference of all available screen-IDs, refer to [this article](https://codex.wordpress.org/Plugin_API/Admin_Screen_Reference). | `[]` |
-| `option_prefix` | `string` | The prefix that will be used to build the option (or user-meta) name. Can contain lowercase latin letters and underscores. The actual option is built by combining the `option_prefix` argument with the defined ID from the 1st argument of the `add()` method. Defaults to `wptrt_notice_dismissed`.
+| `option_prefix` | `string` | The prefix that will be used to build the option (or user-meta) name. Can contain lowercase latin letters and underscores. The actual option is built by combining the `option_prefix` argument with the defined ID from the 1st argument of the `add()` method. | `wptrt_notice_dismissed` |
 
 ## Examples
 You can add the following code within your theme's existing code.
