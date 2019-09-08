@@ -56,3 +56,28 @@ new Notice( $notice_id, $notice_content, $notice_args );
 ```
 
 The above example will create a new notice that will only show in the "Themes" screen in the dasboard. When the notice gets dismissed, a new user-meta will be saved and the key for the stored user-meta will be `notice_dismissed_my_theme_notice`. The key gets created by appending the `$notice_id` to our defined `option_key_prefix`, separated by an underscore.
+
+
+## Autoloading
+
+You'll need to use an autoloader with this. Ideally, this would be [Composer](https://getcomposer.org).  However, we have a [basic autoloader](https://github.com/WPTRT/autoload) available to include with themes if needed.
+
+### Composer
+
+From the command line:
+
+```sh
+composer require wptrt/admin-notices
+```
+
+### WPTRT Autoloader
+
+If using the WPTRT autoloader, use the following code:
+
+```php
+include get_theme_file_path( 'path/to/autoload/src/Loader.php' );
+
+$loader = new \WPTRT\Autoload\Loader();
+$loader->add( 'WPTRT\\Dashboard\\Notice', get_theme_file_path( 'path/to/admin-notices/src' ) );
+$loader->register();
+```
