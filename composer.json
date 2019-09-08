@@ -17,7 +17,7 @@
 	},
 	"autoload"    : {
 		"psr-4" : {
-			"WPTRT\\Dashboard\\" : "src/"
+			"WPTRT\\AdminNotices\\" : "src/"
 		}
 	},
 	"require"     : {

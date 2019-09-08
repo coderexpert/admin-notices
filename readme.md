@@ -3,28 +3,38 @@
 This is a custom class allowing WordPress theme authors to add admin notices to the WordPress dashboard.
 Its primary purpose is for providing a standardized method of creating admin notices in a consistent manner using the default WordPress styles.
 
+Notices created using this method are automatically dismissible.
+
 ## Usage
 
 ```php
-new \WPTRT\Dashboard\Notice( (string) $id, (string) $content, (array) $args );
+$notices = new \WPTRT\AdminNotices\Notices();
+
+// Add a notice.
+$notices->add( (string) $id, (string) $title, (string) $content, (array) $options );
 ```
 
-### Arguments
+After you instantiate the `Notices` object using `$notices = new \WPTRT\AdminNotices\Notices();` you can add new notices using the `add()` method.
 
-* `$id` - Required - `(string)` - A unique ID for this notice. The ID can contain lowercase latin letters and underscores. It is used to construct the option (or user-meta) key that will be strored in the database.
-* `$content` - Required - `(string)` - The content for this notice. Note: Please make sure that your text is properly wrapped in `<p>` tags.
-* `$args` - Optional - `(array)` - Extra arguments for this notice. Can be used to alter the notice's default behavior.
+The arguments of this method are:
 
----------
+| Parameter | Type | | Description
+|---|---|---|---|
+| `$id`| `string` | Required | A unique ID for this notice. **The ID can contain lowercase latin letters and underscores**. It is used to construct the option (or user-meta) key that will be strored in the database. |
+| `$title` | `string` | Required | The title for your notice. If you don't want to use a title you can use set it to `false`. |
+| `$message` | `string` | Required | The content for the notice you want to create. Please note that the only acceptable tags here are `<p>`, `<a>`, `<em>`, `<strong>`.|
+| `$options` | `array` | Optional | Extra arguments for this notice. Can be used to alter the notice's default behavior. |
 
-The `$args` argument can have the following values:
-* `dismissible` - `(bool)` - Whether this notice should be dismissible or not. Defaults to `true`.
-* `screens` - `(array)` - An array of screens where the notice will be displayed. Leave empty to always show. Defaults to an empty array.
-* `scope` - `(string)` Can be "global" or "user". Determines if the dismissed status will be saved as an option or user-meta. Defaults to `global`.
-* `type` - `(string)` - Can be one of "info", "success", "warning", "error". Defaults to "info".
-* `alt_style` - (bool) - Set to true if you want to use alternative styles. These have a background-color depending on the `type` argument - in contrast to the normal styles that use a white background.
-* `capability` - `(string)` - The user capability required to see the notice. Defaults to `edit_theme_options`.
-* `option_key_prefix` - `(string)` - The prefix that will be used to build the option (or post-meta) name. Can contain lowercase latin letters and underscores. The actual option is built by combining the `option_key_prefix` argument with the defined ID from the 1st argument of the class. Defaults to `wptrt_notice_dismissed`.
+The `$options` argument is an array that can have the following optional items:
+
+| Key | Type | Value | Default
+|---|---|---|---|
+| `scope` | `string` | Can be `global` or `user`. Determines if the dismissed status will be saved as an option or user-meta. | `global` |
+| `type` | `string` |  Can be one of `info`, `success`, `warning`, `error`. | `info`
+| `alt_style` | `bool` | Set to true if you want to use alternative styles. These have a background-color depending on the `type` argument - in contrast to the normal styles that use a white background. | `false` |
+| `capability` | `string` | The user capability required to see the notice. For a list of all available capabilities please refer to the [Roles and Capabilities](https://wordpress.org/support/article/roles-and-capabilities/) article. | `edit_theme_options`
+| `screens` | `array` | An array of screens where the notice will be displayed. For a reference of all available screen-IDs, refer to [this article](https://codex.wordpress.org/Plugin_API/Admin_Screen_Reference). | `[]` |
+| `option_prefix` | `string` | The prefix that will be used to build the option (or user-meta) name. Can contain lowercase latin letters and underscores. The actual option is built by combining the `option_prefix` argument with the defined ID from the 1st argument of the `add()` method. Defaults to `wptrt_notice_dismissed`.
 
 ## Examples
 You can add the following code within your theme's existing code.
@@ -32,32 +42,40 @@ You can add the following code within your theme's existing code.
 ### Simple notice.
 
 ```php
-use WPTRT\Dashboard\Notice;
+use WPTRT\AdminNotices\Notices;
 
-$notice_id      = 'my_theme_notice';
-$notice_content = '<p>' . esc_html__( 'This is the content for my new notice', 'textdomain' ) . '</p>';
-new Notice( $notice_id, $notice_content );
+$notices = new Notices();
+$notices->add(
+    'my_theme_notice',
+    esc_html__( 'Notice Title', 'textdomain' ),
+    esc_html__( 'Notice Content', 'textdomain' )
+);
 ```
-The above example will create a new notice that will only show on all dashboard pages. When the notice gets dismissed, a new option will be saved in the database with the key `wptrt_notice_dismissed_my_theme_notice`. The key gets created by appending the `$notice_id` to the default prefix for the option (`wptrt_notice_dismissed`), separated by an underscore.
+The above example will create a new notice that will only show on all dashboard pages. When the notice gets dismissed, a new option will be saved in the database with the key `wptrt_notice_dismissed_my_theme_notice`. The key gets created by appending the `$id` to the default prefix for the option (`wptrt_notice_dismissed`), separated by an underscore.
 
 ### Advanced example using extra arguments.
 
 ```php
-use WPTRT\Dashboard\Notice;
+use WPTRT\AdminNotices\Notices;
 
-$notice_id      = 'my_theme_notice';
-$notice_content = '<p>' . esc_html__( 'This is the content for my new notice', 'textdomain' ) . '</p>';
-$notice_args    = [
-	'screens'           => [ 'themes' ],       // Only show notice in the "themes" screen.
-	'scope'             => 'user',             // Dismiss is per-user instead of global.
-	'type'              => 'warning',          // Changes the color to orange.
-	'option_key_prefix' => 'notice_dismissed', // Changes the prefix for the user-meta we'll save.
-];
-new Notice( $notice_id, $notice_content, $notice_args );
+$notices = new Notices();
+
+$notices = new Notices();
+$notices->add(
+    'my_notice',
+    esc_html__( 'Notice Title', 'textdomain' ),
+    esc_html__( 'Notice Content', 'textdomain' ),
+    [
+        'scope'         => 'user',       // Dismiss is per-user instead of global.
+        'screens'       => [ 'themes' ], // Only show notice in the "themes" screen.
+        'type'          => 'warning',
+        'alt_style'     => true,
+        'option_prefix' => 'my_theme',
+    ]
+);
 ```
 
-The above example will create a new notice that will only show in the "Themes" screen in the dasboard. When the notice gets dismissed, a new user-meta will be saved and the key for the stored user-meta will be `notice_dismissed_my_theme_notice`. The key gets created by appending the `$notice_id` to our defined `option_key_prefix`, separated by an underscore.
-
+The above example will create a new notice that will only show in the "Themes" screen in the dashboard. When the notice gets dismissed, a new user-meta will be saved and the key for the stored user-meta will be `my_theme_my_notice`. The key gets created by appending the `$id` to our defined `option_prefix`, separated by an underscore.
 
 ## Autoloading
 
@@ -79,6 +97,6 @@ If using the WPTRT autoloader, use the following code:
 include get_theme_file_path( 'path/to/autoload/src/Loader.php' );
 
 $loader = new \WPTRT\Autoload\Loader();
-$loader->add( 'WPTRT\\Dashboard\\Notice', get_theme_file_path( 'path/to/admin-notices/src' ) );
+$loader->add( 'WPTRT\\AdminNotices\\Notice', get_theme_file_path( 'path/to/admin-notices/src' ) );
 $loader->register();
 ```

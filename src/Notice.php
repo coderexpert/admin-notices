@@ -11,7 +11,7 @@
  * @link      https://github.com/WPTRT/admin-notices
  */
 
-namespace WPTRT\Dashboard;
+namespace WPTRT\AdminNotices;
 
 /**
  * The Admin_Notice class, responsible for creating admin notices.
@@ -32,22 +32,22 @@ class Notice {
 	private $id;
 
 	/**
-	 * The name of the option (or user-meta) we're going to use to save the dismiss-status.
+	 * The notice message.
 	 *
 	 * @access private
 	 * @since 1.0
 	 * @var string
 	 */
-	private $option_key;
+	private $message;
 
 	/**
-	 * The notice content.
+	 * An instance of the \WPTRT\AdminNotices\Dismiss object.
 	 *
-	 * @access private
+	 * @access public
 	 * @since 1.0
-	 * @var string
+	 * @var \WPTRT\AdminNotices\Dismiss
 	 */
-	private $content;
+	public $dismiss;
 
 	/**
 	 * The notice arguments.
@@ -56,14 +56,45 @@ class Notice {
 	 * @since 1.0
 	 * @var array
 	 */
-	private $args = [
-		'dismissible'       => true,
-		'scope'             => 'global',
-		'type'              => 'info',
-		'alt_style'         => false,
-		'capability'        => 'edit_theme_options',
-		'option_key_prefix' => 'wptrt_notice_dismissed',
-		'screens'           => [],
+	private $options = [
+		'scope'         => 'global',
+		'type'          => 'info',
+		'alt_style'     => false,
+		'capability'    => 'edit_theme_options',
+		'option_prefix' => 'wptrt_notice_dismissed',
+		'screens'       => [],
+	];
+
+	/**
+	 * Allowed HTML in the message.
+	 *
+	 * @access private
+	 * @since 1.0
+	 * @var array
+	 */
+	private $allowed_html = [
+		'p'      => [],
+		'a'      => [
+			'href'  => [],
+			'title' => [],
+			'rel'   => [],
+		],
+		'em'     => [],
+		'strong' => [],
+	];
+
+	/**
+	 * An array of allowed types.
+	 *
+	 * @access private
+	 * @since 1.0
+	 * @var array
+	 */
+	private $allowed_types = [
+		'info',
+		'success',
+		'error',
+		'warning'
 	];
 
 	/**
@@ -72,43 +103,41 @@ class Notice {
 	 * @access public
 	 * @since 1.0
 	 * @param string $id      A unique ID for this notice. Can contain lowercase characters and underscores.
-	 * @param string $content The content for our notice.
-	 * @param array  $args    An array of additional arguments to change the defaults for this notice.
+	 * @param string $title   The title for our notice.
+	 * @param string $message The message for our notice.
+	 * @param array  $options An array of additional options to change the defaults for this notice.
 	 *                        [
-	 *                            'dismissible'       => (bool)   Whether this notice should be dismissible or not.
-	 *                                                            Defaults to true.
-	 *                            'screens'           => (array)  An array of screens where the notice will be displayed.
-	 *                                                            Leave empty to always show.
-	 *                                                            Defaults to an empty array.
-	 *                            'scope'             => (string) Can be "global" or "user".
-	 *                                                            Determines if the dismissed status will be saved as an option or user-meta.
-	 *                                                            Defaults to "global".
-	 *                            'type'              => (string) Can be one of "info", "success", "warning", "error".
-	 *                                                            Defaults to "info".
-	 *                            'capability'        => (string) The user capability required to see the notice.
-	 *                                                            Defaults to "edit_theme_options".
-	 *                            'option_key_prefix' => (string) The prefix that will be used to build the option (or post-meta) name.
-	 *                                                            Can contain lowercase latin letters and underscores.
+	 *                            'screens'       => (array)  An array of screens where the notice will be displayed.
+	 *                                                        Leave empty to always show.
+	 *                                                        Defaults to an empty array.
+	 *                            'scope'         => (string) Can be "global" or "user".
+	 *                                                        Determines if the dismissed status will be saved as an option or user-meta.
+	 *                                                        Defaults to "global".
+	 *                            'type'          => (string) Can be one of "info", "success", "warning", "error".
+	 *                                                        Defaults to "info".
+	 *                            'alt_style'     => (bool)   Whether we want to use alt styles or not.
+	 *                                                        Defaults to false.
+	 *                            'capability'    => (string) The user capability required to see the notice.
+	 *                                                        Defaults to "edit_theme_options".
+	 *                            'option_prefix' => (string) The prefix that will be used to build the option (or post-meta) name.
+	 *                                                        Can contain lowercase latin letters and underscores.
 	 *                        ].
 	 */
-	public function __construct( $id, $content, $args = [] ) {
+	public function __construct( $id, $title, $message, $options = [] ) {
 
 		// Set the object properties.
 		$this->id         = $id;
-		$this->option_key = $this->args['option_key_prefix'] . '_' . sanitize_key( $this->id );
-		$this->content    = $content;
-		$this->args       = wp_parse_args( $args, $this->args );
+		$this->title      = $title;
+		$this->message    = $message;
+		$this->options    = wp_parse_args( $options, $this->options );
 
-		// Sanity check: Early exit if ID or content are empty.
-		if ( ! $this->id || ! $this->content ) {
+		// Sanity check: Early exit if ID or message are empty.
+		if ( ! $this->id || ! $this->message ) {
 			return;
 		}
 
-		// Add the notice.
-		add_action( 'admin_notices', [ $this, 'the_notice' ] );
-
-		// Handle AJAX requests to dismiss the notice.
-		add_action( 'wp_ajax_wptrt_dismiss_notice', [ $this, 'ajax_maybe_dismiss_notice' ] );
+		// Instantiate the Dismiss object.
+		$this->dismiss = new Dismiss( $this->id, $this->options['option_prefix'] );
 	}
 
 	/**
@@ -120,33 +149,48 @@ class Notice {
 	 */
 	public function the_notice() {
 
-		// Early exit if the user doesn't have the required capability.
-		if ( ! current_user_can( $this->args['capability'] ) ) {
+		// Early exit if we don't want to show this notice.
+		if ( ! $this->show() ) {
 			return;
 		}
 
-		// Early exit if we're not on the right screen or if the notice has been dismissed.
-		if ( ! $this->is_screen() || $this->is_dismissed() ) {
-			return;
+		$html  = $this->get_title();
+		$html .= $this->get_message();
+
+		// Print the notice.
+		printf(
+			'<div id="%1$s" class="%2$s">%3$s</div>',
+			'wptrt-notice-' . esc_attr( $this->id ), // The ID.
+			esc_attr( $this->get_classes() ), // The classes.
+			$html // The HTML.
+		);
+	}
+
+	/**
+	 * Determine if the notice should be shown or not.
+	 *
+	 * @access public
+	 * @since 1.0
+	 * @return bool
+	 */
+	public function show() {
+
+		// Don't show if the user doesn't have the required capability.
+		if ( ! current_user_can( $this->options['capability'] ) ) {
+			return false;
 		}
-		?>
 
-		<div id="wptrt-notice-<?php echo esc_attr( $this->id ); ?>" class="<?php echo esc_attr( $this->get_classes() ); ?>">
-			<?php
-			/**
-			 * Print the content.
-			 * This is hardcoded by the theme-author, no need to escape it here.
-			 * Any escaping necessary should be applied to the content provided to the object beforehand.
-			 */
-			echo $this->content; // phpcs:ignore WordPress.Security.EscapeOutput
-			?>
-		</div>
+		// Don't show if we're not on the right screen.
+		if ( ! $this->is_screen() ) {
+			return false;
+		}
 
-		<?php
-		/**
-		 * Print the script handling the dismiss functionality.
-		 */
-		$this->print_script();
+		// Don't show if notice has been dismissed.
+		if ( $this->dismiss->is_dismissed() ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -157,74 +201,55 @@ class Notice {
 	 * @return string
 	 */
 	public function get_classes() {
-		$classes  = 'notice notice-' . $this->args['type'];
-		$classes .= ( $this->args['alt_style'] ) ? ' notice-alt' : '';
-		$classes .= ( $this->args['dismissible'] ) ? ' is-dismissible' : '';
+		$classes = [
+			'notice',
+			'is-dismissible',
+		];
 
-		return $classes;
-	}
+		// Make sure the defined type is allowed.
+		$this->options['type'] = in_array( $this->options['type'], $this->allowed_types ) ? $this->options['type'] : 'info';
 
-	/**
-	 * Print the script for dismissing the notice.
-	 *
-	 * @access private
-	 * @since 1.0
-	 * @return void
-	 */
-	private function print_script() {
+		// Add the class for notice-type.
+		$classes[] = 'notice-' . $this->options['type'];
 
-		// Sanity check: early exit if notice is non-dismissible.
-		if ( ! $this->args['dismissible'] ) {
-			return;
+		// Do we want alt styles?
+		if ( $this->options['alt_style'] ) {
+			$classes[] = 'notice-alt';
 		}
 
-		// Create a nonce.
-		$nonce = wp_create_nonce( 'wptrt_dismiss_notice_' . $this->id );
-		?>
-		<script>
-		window.addEventListener( 'load', function() {
-			var dismissBtn  = document.querySelector( '#wptrt-notice-<?php echo esc_attr( $this->id ); ?> .notice-dismiss' );
-
-			// Add an event listener to the dismiss button.
-			dismissBtn.addEventListener( 'click', function( event ) {
-				var httpRequest = new XMLHttpRequest(),
-					postData    = '';
-
-				// Build the data to send in our request.
-				// Data has to be formatted as a string here.
-				postData += 'id=<?php echo esc_attr( rawurlencode( $this->id ) ); ?>';
-				postData += '&action=wptrt_dismiss_notice';
-				postData += '&nonce=<?php echo esc_html( $nonce ); ?>';
-
-				httpRequest.open( 'POST', '<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>' );
-				httpRequest.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded' )
-				httpRequest.send( postData );
-			});
-		});
-		</script>
-		<?php
+		// Combine classes to a string.
+		return implode( ' ', $classes );
 	}
 
 	/**
-	 * Check if the notice has been dismissed or not.
+	 * Returns the title.
 	 *
 	 * @access public
 	 * @since 1.0
-	 * @return bool
+	 * @return string
 	 */
-	public function is_dismissed() {
+	public function get_title() {
 
-		// If the notice is not dismissible, then return false.
-		if ( ! $this->args['dismissible'] ) {
-			return false;
+		// Sanity check: Early exit if no title is defined.
+		if ( ! $this->title ) {
+			return '';
 		}
 
-		// Check if the notice has been dismissed when using user-meta.
-		if ( 'user' === $this->args['scope'] ) {
-			return ( get_user_meta( get_current_user_id(), $this->option_key, true ) );
-		}
+		return sprintf(
+			'<h2 class="notice-title">%s</h2>',
+			wp_strip_all_tags( $this->title )
+		);
+	}
 
-		return ( get_option( $this->option_key ) );
+	/**
+	 * Returns the message.
+	 *
+	 * @access public
+	 * @since 1.0
+	 * @return string
+	 */
+	public function get_message() {
+		return wpautop( wp_kses( $this->message, $this->allowed_html ) );
 	}
 
 	/**
@@ -237,7 +262,7 @@ class Notice {
 	private function is_screen() {
 
 		// If screen is empty we want this shown on all screens.
-		if ( ! $this->args['screens'] || empty( $this->args['screens'] ) ) {
+		if ( ! $this->options['screens'] || empty( $this->options['screens'] ) ) {
 			return true;
 		}
 
@@ -247,48 +272,6 @@ class Notice {
 		}
 
 		// Check if we're on one of the defined screens.
-		return ( in_array( get_current_screen()->id, $this->args['screens'], true ) );
-	}
-
-	/**
-	 * Run check to see if we need to dismiss the notice.
-	 * If all tests are successful then call the dismiss_notice() method.
-	 *
-	 * @access public
-	 * @since 1.0
-	 * @return void
-	 */
-	public function ajax_maybe_dismiss_notice() {
-
-		// Sanity check: Early exit if we're not on a wptrt_dismiss_notice action.
-		if ( ! isset( $_POST['action'] ) || 'wptrt_dismiss_notice' !== $_POST['action'] ) {
-			return;
-		}
-
-		// Sanity check: Early exit if the ID of the notice is not the one from this object.
-		if ( ! isset( $_POST['id'] ) || $this->id !== $_POST['id'] ) {
-			return;
-		}
-
-		// Security check: Make sure nonce is OK.
-		check_ajax_referer( 'wptrt_dismiss_notice_' . $this->id, 'nonce', true );
-
-		// If we got this far, we need to dismiss the notice.
-		$this->dismiss_notice();
-	}
-
-	/**
-	 * Actually dismisses the notice.
-	 *
-	 * @access private
-	 * @since 1.0
-	 * @return void
-	 */
-	private function dismiss_notice() {
-		if ( 'user' === $this->args['scope'] ) {
-			update_user_meta( get_current_user_id(), $this->option_key, true );
-			return;
-		}
-		update_option( $this->option_key, true );
+		return ( in_array( get_current_screen()->id, $this->options['screens'], true ) );
 	}
 }
