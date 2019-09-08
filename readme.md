@@ -22,6 +22,7 @@ The `$args` argument can have the following values:
 * `screens` - `(array)` - An array of screens where the notice will be displayed. Leave empty to always show. Defaults to an empty array.
 * `scope` - `(string)` Can be "global" or "user". Determines if the dismissed status will be saved as an option or user-meta. Defaults to `global`.
 * `type` - `(string)` - Can be one of "info", "success", "warning", "error". Defaults to "info".
+* `alt_style` - (bool) - Set to true if you want to use alternative styles. These have a background-color depending on the `type` argument - in contrast to the normal styles that use a white background.
 * `capability` - `(string)` - The user capability required to see the notice. Defaults to `edit_theme_options`.
 * `option_key_prefix` - `(string)` - The prefix that will be used to build the option (or post-meta) name. Can contain lowercase latin letters and underscores. The actual option is built by combining the `option_key_prefix` argument with the defined ID from the 1st argument of the class. Defaults to `wptrt_notice_dismissed`.
 

@@ -60,6 +60,7 @@ class Notice {
 		'dismissible'       => true,
 		'scope'             => 'global',
 		'type'              => 'info',
+		'alt_style'         => false,
 		'capability'        => 'edit_theme_options',
 		'option_key_prefix' => 'wptrt_notice_dismissed',
 		'screens'           => [],
@@ -129,8 +130,9 @@ class Notice {
 			return;
 		}
 
-		$classes = 'notice notice-' . $this->args['type'];
-		// Add is-dismissible class.
+		// Build the classes string.
+		$classes  = 'notice notice-' . $this->args['type'];
+		$classes .= ( $this->args['alt_style'] ) ? ' notice-alt' : '';
 		$classes .= ( $this->args['dismissible'] ) ? ' is-dismissible' : '';
 		?>
 
