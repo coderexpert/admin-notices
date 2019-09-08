@@ -39,38 +39,35 @@ The `$options` argument is an array that can have the following optional items:
 ## Examples
 You can add the following code within your theme's existing code.
 
-### Simple notice.
-
+First we need to instantiate the `Notices` object:
 ```php
 use WPTRT\AdminNotices\Notices;
 
 $notices = new Notices();
+```
+To add a simple, default notice:
+```php
 $notices->add(
-    'my_theme_notice',
-    esc_html__( 'Notice Title', 'textdomain' ),
-    esc_html__( 'Notice Content', 'textdomain' )
+    'my_theme_notice',                           // Unique ID.
+    esc_html__( 'Notice Title', 'textdomain' ),  // The title for this notice.
+    esc_html__( 'Notice content', 'textdomain' ) // The content for this notice.
 );
 ```
 The above example will create a new notice that will only show on all dashboard pages. When the notice gets dismissed, a new option will be saved in the database with the key `wptrt_notice_dismissed_my_theme_notice`. The key gets created by appending the `$id` to the default prefix for the option (`wptrt_notice_dismissed`), separated by an underscore.
 
-### Advanced example using extra arguments.
+To add a more customized notice:
 
 ```php
-use WPTRT\AdminNotices\Notices;
-
-$notices = new Notices();
-
-$notices = new Notices();
 $notices->add(
-    'my_notice',
-    esc_html__( 'Notice Title', 'textdomain' ),
-    esc_html__( 'Notice Content', 'textdomain' ),
+    'my_notice',                                  // Unique ID.
+    esc_html__( 'Notice Title', 'textdomain' ),   // The title for this notice.
+    esc_html__( 'Notice content', 'textdomain' ), // The content for this notice.
     [
         'scope'         => 'user',       // Dismiss is per-user instead of global.
         'screens'       => [ 'themes' ], // Only show notice in the "themes" screen.
-        'type'          => 'warning',
-        'alt_style'     => true,
-        'option_prefix' => 'my_theme',
+        'type'          => 'warning',    // Make this a warning (orange color).
+        'alt_style'     => true,         // Use alt styles.
+        'option_prefix' => 'my_theme',   // Change the user-meta prefix.
     ]
 );
 ```
