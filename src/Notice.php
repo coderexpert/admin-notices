@@ -129,14 +129,9 @@ class Notice {
 		if ( ! $this->is_screen() || $this->is_dismissed() ) {
 			return;
 		}
-
-		// Build the classes string.
-		$classes  = 'notice notice-' . $this->args['type'];
-		$classes .= ( $this->args['alt_style'] ) ? ' notice-alt' : '';
-		$classes .= ( $this->args['dismissible'] ) ? ' is-dismissible' : '';
 		?>
 
-		<div id="wptrt-notice-<?php echo esc_attr( $this->id ); ?>" class="<?php echo esc_attr( $classes ); ?>">
+		<div id="wptrt-notice-<?php echo esc_attr( $this->id ); ?>" class="<?php echo esc_attr( $this->get_classes() ); ?>">
 			<?php
 			/**
 			 * Print the content.
@@ -152,6 +147,21 @@ class Notice {
 		 * Print the script handling the dismiss functionality.
 		 */
 		$this->print_script();
+	}
+
+	/**
+	 * Get the notice classes.
+	 *
+	 * @access public
+	 * @since 1.0
+	 * @return string
+	 */
+	public function get_classes() {
+		$classes  = 'notice notice-' . $this->args['type'];
+		$classes .= ( $this->args['alt_style'] ) ? ' notice-alt' : '';
+		$classes .= ( $this->args['dismissible'] ) ? ' is-dismissible' : '';
+
+		return $classes;
 	}
 
 	/**
