@@ -12,6 +12,9 @@ $my_theme_notices = new \WPTRT\AdminNotices\Notices();
 
 // Add a notice.
 $my_theme_notices->add( (string) $id, (string) $title, (string) $content, (array) $options );
+
+// Boot things up.
+$my_theme_notices->boot();
 ```
 
 After you instantiate the `Notices` object using `$my_theme_notices = new \WPTRT\AdminNotices\Notices();` you can add new notices using the `add()` method.
