@@ -8,13 +8,13 @@ Notices created using this method are automatically dismissible.
 ## Usage
 
 ```php
-$notices = new \WPTRT\AdminNotices\Notices();
+$my_theme_notices = new \WPTRT\AdminNotices\Notices();
 
 // Add a notice.
-$notices->add( (string) $id, (string) $title, (string) $content, (array) $options );
+$my_theme_notices->add( (string) $id, (string) $title, (string) $content, (array) $options );
 ```
 
-After you instantiate the `Notices` object using `$notices = new \WPTRT\AdminNotices\Notices();` you can add new notices using the `add()` method.
+After you instantiate the `Notices` object using `$my_theme_notices = new \WPTRT\AdminNotices\Notices();` you can add new notices using the `add()` method.
 
 The arguments of this method are:
 
@@ -43,11 +43,11 @@ First we need to instantiate the `Notices` object:
 ```php
 use WPTRT\AdminNotices\Notices;
 
-$notices = new Notices();
+$my_theme_notices = new Notices();
 ```
 To add a simple, default notice:
 ```php
-$notices->add(
+$my_theme_notices->add(
     'my_theme_notice',                           // Unique ID.
     esc_html__( 'Notice Title', 'textdomain' ),  // The title for this notice.
     esc_html__( 'Notice content', 'textdomain' ) // The content for this notice.
@@ -58,7 +58,7 @@ The above example will create a new notice that will only show on all dashboard 
 To add a more customized notice:
 
 ```php
-$notices->add(
+$my_theme_notices->add(
     'my_notice',                                  // Unique ID.
     esc_html__( 'Notice Title', 'textdomain' ),   // The title for this notice.
     esc_html__( 'Notice content', 'textdomain' ), // The content for this notice.
