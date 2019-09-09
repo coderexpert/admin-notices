@@ -32,23 +32,13 @@ class Notices {
 	private $notices = [];
 
 	/**
-	 * Constructor.
-	 *
-	 * @access public
-	 * @since 1.0
-	 */
-	public function __construct() {
-		$this->run();
-	}
-
-	/**
 	 * Adds actions for the notices.
 	 *
 	 * @access public
 	 * @since 1.0
 	 * @return void
 	 */
-	public function run() {
+	public function boot() {
 
 		// Add the notice.
 		add_action( 'admin_notices', [ $this, 'the_notices' ] );

@@ -74,6 +74,20 @@ $my_theme_notices->add(
 
 The above example will create a new notice that will only show in the "Themes" screen in the dashboard. When the notice gets dismissed, a new user-meta will be saved and the key for the stored user-meta will be `my_theme_my_notice`. The key gets created by appending the `$id` to our defined `option_prefix`, separated by an underscore.
 
+The `Notices` class can be used to add multiple notices.
+Once you have finished adding the notices, you will have to run the `boot` method so that the notices can be added to the dashboard:
+```php
+$my_theme_notices->boot();
+```
+
+To sum up all the above, a complete example of how to add an admin notice would look like this:
+
+```php
+$my_theme_notices = new \WPTRT\AdminNotices\Notices()
+$my_theme_notices->add( 'my_theme_notice', __( 'Title', 'textdomain' ), __( 'Content', 'textdomain' ) );
+$my_theme_notices->boot();
+```
+
 ## Autoloading
 
 You'll need to use an autoloader with this. Ideally, this would be [Composer](https://getcomposer.org).  However, we have a [basic autoloader](https://github.com/WPTRT/autoload) available to include with themes if needed.
