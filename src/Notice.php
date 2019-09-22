@@ -136,6 +136,15 @@ class Notice {
 			return;
 		}
 
+		/**
+		 * Allow filtering the allowed HTML tags array.
+		 *
+		 * @since 1.0.2
+		 * @param array The list of allowed HTML tags.
+		 * @return array
+		 */
+		$this->allowed_html = apply_filters( 'wptrt_admin_notices_allowed_html', $this->allowed_html );
+
 		// Instantiate the Dismiss object.
 		$this->dismiss = new Dismiss( $this->id, $this->options['option_prefix'] );
 	}
