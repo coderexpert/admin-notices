@@ -76,11 +76,11 @@ class Notice {
 		'p'      => [],
 		'a'      => [
 			'href'  => [],
-			'title' => [],
 			'rel'   => [],
 		],
 		'em'     => [],
 		'strong' => [],
+		'br'     => [],
 	];
 
 	/**
