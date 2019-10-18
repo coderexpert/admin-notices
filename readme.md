@@ -86,7 +86,7 @@ $my_theme_notices->boot();
 To sum up all the above, a complete example of how to add an admin notice would look like this:
 
 ```php
-$my_theme_notices = new \WPTRT\AdminNotices\Notices()
+$my_theme_notices = new \WPTRT\AdminNotices\Notices();
 $my_theme_notices->add( 'my_theme_notice', __( 'Title', 'textdomain' ), __( 'Content', 'textdomain' ) );
 $my_theme_notices->boot();
 ```
